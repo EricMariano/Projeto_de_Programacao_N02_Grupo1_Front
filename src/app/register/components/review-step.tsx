@@ -6,6 +6,7 @@ interface ReviewStepProps {
   formData: {
     nome: string
     email: string
+    cpf: string
     dataNascimento: Date | undefined
     matricula: string
     especialidade: string
@@ -34,6 +35,7 @@ export function ReviewStep({ formData }: ReviewStepProps) {
         <div className="space-y-2 text-sm">
           <SummaryItem label="Nome" value={formData.nome} />
           <SummaryItem label="Email" value={formData.email} />
+          <SummaryItem label="CPF" value={formData.cpf} />
           <SummaryItem 
             label="Data de Nascimento" 
             value={formData.dataNascimento ? format(formData.dataNascimento, "dd/MM/yyyy") : "—"} 

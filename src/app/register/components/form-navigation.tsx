@@ -7,6 +7,7 @@ interface FormNavigationProps {
   onPrevious: () => void
   onNext: (e: React.FormEvent) => void
   onSubmit: (e: React.FormEvent) => void
+  isSubmitting?: boolean
 }
 
 export function FormNavigation({ 
@@ -14,7 +15,8 @@ export function FormNavigation({
   totalSteps, 
   onPrevious, 
   onNext, 
-  onSubmit 
+  onSubmit,
+  isSubmitting = false
 }: FormNavigationProps) {
   const isLastStep = currentStep === totalSteps
   const isFirstStep = currentStep === 1
@@ -38,6 +40,7 @@ export function FormNavigation({
           type="button" 
           onClick={onNext}
           className="h-11 flex-1 font-semibold"
+          disabled={isSubmitting}
         >
           Próximo
           <ChevronRight className="h-4 w-4 ml-1" />
@@ -47,9 +50,19 @@ export function FormNavigation({
           type="submit" 
           onClick={onSubmit}
           className="h-11 flex-1 font-semibold"
+          disabled={isSubmitting}
         >
-          <Check className="h-4 w-4 mr-2" />
-          Finalizar Cadastro
+          {isSubmitting ? (
+            <>
+              <span className="animate-spin mr-2">⏳</span>
+              Processando...
+            </>
+          ) : (
+            <>
+              <Check className="h-4 w-4 mr-2" />
+              Finalizar Cadastro
+            </>
+          )}
         </Button>
       )}
     </div>

@@ -80,9 +80,9 @@ export function ProfessionalInfoStep({
               <SelectValue placeholder="Selecione um nível..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="user">Usuário</SelectItem>
-              <SelectItem value="admin">Administrador</SelectItem>
-              <SelectItem value="moderator">Moderador</SelectItem>
+              <SelectItem value="STUDENT">Estudante</SelectItem>
+              <SelectItem value="INSTRUCTOR">Instrutor</SelectItem>
+              <SelectItem value="ADMIN">Administrador</SelectItem>
             </SelectContent>
           </Select>
         </Field>

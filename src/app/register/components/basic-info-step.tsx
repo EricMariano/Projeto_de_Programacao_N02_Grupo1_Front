@@ -7,6 +7,7 @@ interface BasicInfoStepProps {
   formData: {
     nome: string
     email: string
+    cpf: string
     telefone: string
     senha: string
     dataNascimento: Date | undefined
@@ -50,18 +51,31 @@ export function BasicInfoStep({
         </Field>
         
         <Field>
-          <FieldLabel htmlFor="telefone">Telefone *</FieldLabel>
+          <FieldLabel htmlFor="cpf">CPF *</FieldLabel>
           <Input 
-            id="telefone" 
-            type="tel" 
-            placeholder="(00) 00000-0000" 
+            id="cpf" 
+            type="text" 
+            placeholder="000.000.000-00" 
             required 
-            value={formData.telefone}
+            value={formData.cpf}
             onChange={onInputChange}
             className="h-11"
           />
         </Field>
       </div>
+      
+      <Field>
+        <FieldLabel htmlFor="telefone">Telefone *</FieldLabel>
+        <Input 
+          id="telefone" 
+          type="tel" 
+          placeholder="(00) 00000-0000" 
+          required 
+          value={formData.telefone}
+          onChange={onInputChange}
+          className="h-11"
+        />
+      </Field>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Field>
