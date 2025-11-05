@@ -5,8 +5,6 @@ interface FormNavigationProps {
   currentStep: number
   totalSteps: number
   onPrevious: () => void
-  onNext: (e: React.FormEvent) => void
-  onSubmit: (e: React.FormEvent) => void
   isSubmitting?: boolean
 }
 
@@ -14,8 +12,6 @@ export function FormNavigation({
   currentStep, 
   totalSteps, 
   onPrevious, 
-  onNext, 
-  onSubmit,
   isSubmitting = false
 }: FormNavigationProps) {
   const isLastStep = currentStep === totalSteps
@@ -37,8 +33,7 @@ export function FormNavigation({
       
       {!isLastStep ? (
         <Button 
-          type="button" 
-          onClick={onNext}
+          type="submit"
           className="h-11 flex-1 font-semibold"
           disabled={isSubmitting}
         >
@@ -47,8 +42,7 @@ export function FormNavigation({
         </Button>
       ) : (
         <Button 
-          type="submit" 
-          onClick={onSubmit}
+          type="submit"
           className="h-11 flex-1 font-semibold"
           disabled={isSubmitting}
         >

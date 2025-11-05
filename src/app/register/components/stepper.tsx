@@ -22,7 +22,6 @@ export function Stepper({ steps, currentStep }: StepperProps) {
             className="flex flex-col items-center relative" 
             style={{ width: `${100 / steps.length}%` }}
           >
-            {/* Linha de conexão */}
             {index < steps.length - 1 && (
               <div 
                 className={cn(
@@ -32,7 +31,6 @@ export function Stepper({ steps, currentStep }: StepperProps) {
               />
             )}
             
-            {/* Círculo do step */}
             <div 
               className={cn(
                 "w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all mb-2",
@@ -48,7 +46,6 @@ export function Stepper({ steps, currentStep }: StepperProps) {
               )}
             </div>
             
-            {/* Nome e descrição do step */}
             <div className="text-center max-w-[120px]">
               <p className={cn(
                 "text-xs font-medium",

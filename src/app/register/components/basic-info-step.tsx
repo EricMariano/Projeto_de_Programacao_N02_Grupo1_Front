@@ -2,25 +2,24 @@ import { Field, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { DatePicker } from "@/components/ui/date-picker"
 import { FormSection } from "./form-section"
+import type { UseFormRegister, FieldErrors, UseFormSetValue, UseFormWatch } from "react-hook-form"
+import type { RegisterFormData } from "@/lib/validation-schemas"
 
 interface BasicInfoStepProps {
-  formData: {
-    nome: string
-    email: string
-    cpf: string
-    telefone: string
-    senha: string
-    dataNascimento: Date | undefined
-  }
-  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  onDateChange: (date: Date | undefined) => void
+  register: UseFormRegister<RegisterFormData>
+  errors: FieldErrors<RegisterFormData>
+  setValue: UseFormSetValue<RegisterFormData>
+  watch: UseFormWatch<RegisterFormData>
 }
 
 export function BasicInfoStep({ 
-  formData, 
-  onInputChange, 
-  onDateChange 
+  register, 
+  errors, 
+  setValue,
+  watch
 }: BasicInfoStepProps) {
+  const dataNascimento = watch("dataNascimento")
+
   return (
     <FormSection title="Dados Pessoais">
       <Field>
@@ -29,11 +28,12 @@ export function BasicInfoStep({
           id="nome" 
           type="text" 
           placeholder="Ex.: João da Silva" 
-          required 
-          value={formData.nome}
-          onChange={onInputChange}
           className="h-11"
+          {...register("nome")}
         />
+        {errors.nome && (
+          <p className="text-xs text-red-500 mt-1">{errors.nome.message}</p>
+        )}
       </Field>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -43,11 +43,12 @@ export function BasicInfoStep({
             id="email" 
             type="email" 
             placeholder="seu.email@exemplo.com" 
-            required 
-            value={formData.email}
-            onChange={onInputChange}
             className="h-11"
+            {...register("email")}
           />
+          {errors.email && (
+            <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+          )}
         </Field>
         
         <Field>
@@ -55,12 +56,21 @@ export function BasicInfoStep({
           <Input 
             id="cpf" 
             type="text" 
-            placeholder="000.000.000-00" 
-            required 
-            value={formData.cpf}
-            onChange={onInputChange}
+            placeholder="12345678900 (apenas números)" 
+            maxLength={11}
             className="h-11"
+            {...register("cpf")}
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, '')
+              setValue("cpf", value)
+            }}
           />
+          {errors.cpf && (
+            <p className="text-xs text-red-500 mt-1">{errors.cpf.message}</p>
+          )}
+          {!errors.cpf && (
+            <p className="text-xs text-muted-foreground mt-1">Digite apenas os 11 números do CPF</p>
+          )}
         </Field>
       </div>
       
@@ -69,12 +79,21 @@ export function BasicInfoStep({
         <Input 
           id="telefone" 
           type="tel" 
-          placeholder="(00) 00000-0000" 
-          required 
-          value={formData.telefone}
-          onChange={onInputChange}
+          placeholder="11999999999 (apenas números)" 
+          maxLength={11}
           className="h-11"
+          {...register("telefone")}
+          onChange={(e) => {
+            const value = e.target.value.replace(/\D/g, '')
+            setValue("telefone", value)
+          }}
         />
+        {errors.telefone && (
+          <p className="text-xs text-red-500 mt-1">{errors.telefone.message}</p>
+        )}
+        {!errors.telefone && (
+          <p className="text-xs text-muted-foreground mt-1">Digite DDD + número (ex: 11999999999)</p>
+        )}
       </Field>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -83,22 +102,25 @@ export function BasicInfoStep({
           <Input 
             id="senha" 
             type="password" 
-            placeholder="*******" 
-            required 
-            minLength={8}
-            value={formData.senha}
-            onChange={onInputChange}
+            placeholder="Mínimo 6 caracteres" 
             className="h-11"
+            {...register("senha")}
           />
+          {errors.senha && (
+            <p className="text-xs text-red-500 mt-1">{errors.senha.message}</p>
+          )}
         </Field>
         
         <Field>
           <FieldLabel htmlFor="dataNascimento">Data de Nascimento *</FieldLabel>
           <DatePicker
-            date={formData.dataNascimento}
-            onDateChange={onDateChange}
+            date={dataNascimento}
+            onDateChange={(date) => setValue("dataNascimento", date as Date)}
             placeholder="Selecione sua data de nascimento"
           />
+          {errors.dataNascimento && (
+            <p className="text-xs text-red-500 mt-1">{errors.dataNascimento.message}</p>
+          )}
         </Field>
       </div>
     </FormSection>

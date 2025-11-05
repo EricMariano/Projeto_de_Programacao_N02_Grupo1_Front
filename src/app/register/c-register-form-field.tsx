@@ -1,36 +1,22 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
-import { FieldGroup, FieldSeparator } from "@/components/ui/field"
+import { FieldGroup } from "@/components/ui/field"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import Link from "next/link"
 import { Stepper, type Step } from "./components/stepper"
 import { FormHeader } from "./components/form-header"
 import { BasicInfoStep } from "./components/basic-info-step"
 import { ProfessionalInfoStep } from "./components/professional-info-step"
 import { ReviewStep } from "./components/review-step"
 import { FormNavigation } from "./components/form-navigation"
-import { api, type UserRequestDTO, ApiError } from "@/lib/api"
+import { createUser, ApiError } from "@/lib/api"
+import type { UserRequestDTO } from "@/lib/types"
+import { registerFormSchema, type RegisterFormData } from "@/lib/validation-schemas"
 import { AlertCircle, CheckCircle2 } from "lucide-react"
-
-interface FormData {
-  // Informações Básicas
-  nome: string
-  email: string
-  cpf: string
-  telefone: string
-  senha: string
-  dataNascimento: Date | undefined
-  
-  // Informações Profissionais
-  matricula: string
-  registroProf: string
-  especialidade: string
-  nivelAcesso: string
-}
 
 const steps: Step[] = [
   { id: 1, name: "Informações Básicas", description: "Dados pessoais" },
@@ -42,40 +28,51 @@ export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  const [formData, setFormData] = useState<FormData>({
-    nome: "",
-    email: "",
-    cpf: "",
-    telefone: "",
-    senha: "",
-    dataNascimento: undefined,
-    matricula: "",
-    registroProf: "",
-    especialidade: "",
-    nivelAcesso: "",
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors, isSubmitting },
+    trigger,
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerFormSchema),
+    defaultValues: {
+      nome: "",
+      email: "",
+      cpf: "",
+      telefone: "",
+      senha: "",
+      dataNascimento: undefined,
+      matricula: "",
+      registroProf: "",
+      especialidade: "",
+      nivelAcesso: undefined,
+    },
+    mode: "onBlur",
   })
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { id, value } = e.target
-    setFormData(prev => ({ ...prev, [id]: value }))
-  }
+  const formData = watch()
 
-  const handleSelectChange = (value: string) => {
-    setFormData(prev => ({ ...prev, nivelAcesso: value }))
-  }
-
-  const handleDateChange = (date: Date | undefined) => {
-    setFormData(prev => ({ ...prev, dataNascimento: date }))
-  }
-
-  const handleNext = (e: React.FormEvent) => {
+  const handleNext = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (currentStep < steps.length) {
+    
+    let fieldsToValidate: (keyof RegisterFormData)[] = []
+    
+    if (currentStep === 1) {
+      fieldsToValidate = ["nome", "email", "cpf", "telefone", "senha", "dataNascimento"]
+    } else if (currentStep === 2) {
+      fieldsToValidate = ["matricula", "nivelAcesso"]
+    }
+    
+    const isValid = await trigger(fieldsToValidate)
+    
+    if (isValid && currentStep < steps.length) {
       setCurrentStep(currentStep + 1)
     }
   }
@@ -86,54 +83,61 @@ export function RegisterForm({
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const onSubmit = async (data: RegisterFormData) => {
     setError(null)
     setSuccess(false)
-    setIsSubmitting(true)
 
-    // Validações básicas
-    if (!formData.dataNascimento) {
-      setError("Data de nascimento é obrigatória")
-      setIsSubmitting(false)
-      return
-    }
-
-    // Prepara os dados no formato esperado pela API
     const userData: UserRequestDTO = {
-      name: formData.nome,
-      email: formData.email,
-      cpf: formData.cpf || undefined,
-      password: formData.senha,
-      phone: formData.telefone,
-      birthDate: format(formData.dataNascimento, "yyyy-MM-dd"),
-      role: (formData.nivelAcesso as "STUDENT" | "INSTRUCTOR" | "ADMIN") || "STUDENT",
-      registration: formData.matricula,
-      teacherRegistration: formData.registroProf || null,
-      specialty: formData.especialidade || null,
+      name: data.nome,
+      email: data.email,
+      cpf: data.cpf,
+      password: data.senha,
+      phone: data.telefone,
+      birthDate: format(data.dataNascimento, "yyyy-MM-dd"),
+      role: data.nivelAcesso,
+      registration: data.matricula,
+      teacherRegistration: data.registroProf || null,
+      specialty: data.especialidade || null,
     }
 
     try {
-      await api.createUser(userData)
+      await createUser(userData)
       setSuccess(true)
       
-      // Redireciona após 2 segundos
       setTimeout(() => {
-        router.push("/")
-      }, 2000)
+        reset()
+        setCurrentStep(1)
+        setSuccess(false)
+      }, 3000)
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(err.message || "Erro ao criar usuário")
+        let errorMsg = err.message || "Erro ao criar usuário"
+        
+        if (err.details && typeof err.details === 'object') {
+          const details = err.details as Record<string, unknown>
+          if (details.errors && typeof details.errors === 'object') {
+            const errorFields = Object.entries(details.errors as Record<string, unknown>)
+              .map(([field, msg]) => `${field}: ${msg}`)
+              .join(', ')
+            errorMsg = `${err.message}. ${errorFields}`
+          } else if (details.mensagem && typeof details.mensagem === 'string') {
+            errorMsg = details.mensagem
+          }
+        }
+        
+        setError(errorMsg)
       } else {
         setError("Erro desconhecido ao criar usuário. Tente novamente.")
       }
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
   return (
-    <form className={cn("flex flex-col gap-6 max-w-2xl mx-auto w-full", className)} {...props}>
+    <form 
+      onSubmit={currentStep === steps.length ? handleSubmit(onSubmit) : handleNext}
+      className={cn("flex flex-col gap-6 max-w-2xl mx-auto w-full", className)} 
+      {...props}
+    >
       <FieldGroup className="space-y-6">
         <FormHeader 
           title="Faça seu cadastro" 
@@ -146,17 +150,19 @@ export function RegisterForm({
         <div className="min-h-[400px]">
           {currentStep === 1 && (
             <BasicInfoStep 
-              formData={formData}
-              onInputChange={handleInputChange}
-              onDateChange={handleDateChange}
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              watch={watch}
             />
           )}
 
           {currentStep === 2 && (
             <ProfessionalInfoStep 
-              formData={formData}
-              onInputChange={handleInputChange}
-              onSelectChange={handleSelectChange}
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              watch={watch}
             />
           )}
 
@@ -165,7 +171,6 @@ export function RegisterForm({
           )}
         </div>
 
-        {/* Mensagens de erro e sucesso */}
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -177,7 +182,7 @@ export function RegisterForm({
           <Alert className="bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900">
             <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
             <AlertDescription className="text-green-900 dark:text-green-100">
-              Usuário criado com sucesso! Redirecionando...
+              Usuário criado com sucesso! Formulário será limpo em 3 segundos...
             </AlertDescription>
           </Alert>
         )}
@@ -186,17 +191,8 @@ export function RegisterForm({
           currentStep={currentStep}
           totalSteps={steps.length}
           onPrevious={handlePrevious}
-          onNext={handleNext}
-          onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
         />
-        
-        <FieldSeparator>
-          Já tem uma conta?{" "}
-          <Link href="/" className="text-primary hover:underline font-semibold">
-            Faça seu login
-          </Link>
-        </FieldSeparator>
       </FieldGroup>
     </form>
   )

@@ -49,7 +49,6 @@ function Calendar({
 
   return (
     <div className="p-3">
-      {/* Custom month/year selectors */}
       <div className="flex justify-center items-center gap-2 mb-4 relative">
         <Select
           value={currentMonthIndex.toString()}
@@ -84,7 +83,6 @@ function Calendar({
         </Select>
       </div>
 
-      {/* Calendar */}
       <DayPicker
         month={month}
         onMonthChange={setMonth}

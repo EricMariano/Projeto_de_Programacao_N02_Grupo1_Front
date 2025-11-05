@@ -1,16 +1,10 @@
 import { format } from "date-fns"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Info } from "lucide-react"
+import type { RegisterFormData } from "@/lib/validation-schemas"
 
 interface ReviewStepProps {
-  formData: {
-    nome: string
-    email: string
-    cpf: string
-    dataNascimento: Date | undefined
-    matricula: string
-    especialidade: string
-  }
+  formData: RegisterFormData
 }
 
 interface SummaryItemProps {
@@ -33,15 +27,28 @@ export function ReviewStep({ formData }: ReviewStepProps) {
       <div className="bg-muted/30 p-6 rounded-lg border border-border/50">
         <h4 className="text-sm font-semibold mb-3 text-foreground">Resumo do Cadastro</h4>
         <div className="space-y-2 text-sm">
-          <SummaryItem label="Nome" value={formData.nome} />
-          <SummaryItem label="Email" value={formData.email} />
-          <SummaryItem label="CPF" value={formData.cpf} />
+          <SummaryItem label="Nome" value={formData.nome || "—"} />
+          <SummaryItem label="Email" value={formData.email || "—"} />
+          <SummaryItem label="CPF" value={formData.cpf || "—"} />
           <SummaryItem 
             label="Data de Nascimento" 
             value={formData.dataNascimento ? format(formData.dataNascimento, "dd/MM/yyyy") : "—"} 
           />
-          <SummaryItem label="Matrícula" value={formData.matricula} />
-          <SummaryItem label="Especialidade" value={formData.especialidade} />
+          <SummaryItem label="Matrícula" value={formData.matricula || "—"} />
+          <SummaryItem label="Registro Profissional" value={formData.registroProf || "—"} />
+          <SummaryItem label="Especialidade" value={formData.especialidade || "—"} />
+          <SummaryItem 
+            label="Nível de Acesso" 
+            value={
+              formData.nivelAcesso === "STUDENT" 
+                ? "Estudante" 
+                : formData.nivelAcesso === "INSTRUCTOR" 
+                ? "Instrutor" 
+                : formData.nivelAcesso === "ADMIN"
+                ? "Administrador"
+                : "—"
+            } 
+          />
         </div>
       </div>
       
