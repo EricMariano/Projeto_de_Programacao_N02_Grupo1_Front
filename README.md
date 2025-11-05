@@ -64,7 +64,7 @@ cd Projeto_de_Programacao_N02_Grupo1_Front
 npm install
 ```
 
-3. Configure environment variables (if needed):
+3. Configure environment variables:
 Create a `.env.local` file in the root directory and add your backend API URL:
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:8080/
