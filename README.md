@@ -29,6 +29,22 @@ The application is structured following the modern Next.js architecture pattern:
 * **HTTP Client:** Fetch API
 * **Package Manager:** npm
 
+### 👨‍💻 Backend Repository
+<table>
+  <tr>
+    <td valign="middle">
+      <a href="https://github.com/Pedronovaesdev/Projeto_de_Programacao_N02_Grupo1.git" target="_blank">
+      <img src="https://www.svgrepo.com/show/484158/web-page-browser-window.svg" height="50" width="50" alt="Web page icon">
+      </a>
+      </td>
+      <td valign="middle">
+      <a href="https://github.com/Pedronovaesdev/Projeto_de_Programacao_N02_Grupo1.git" target="_blank">
+      Check out the application backend
+      </a>
+    </td>
+  </tr>
+</table>
+
 ### 🚀 How to Run
 
 #### Prerequisites
@@ -48,7 +64,7 @@ cd Projeto_de_Programacao_N02_Grupo1_Front
 npm install
 ```
 
-3. Configure environment variables (if needed):
+3. Configure environment variables:
 Create a `.env.local` file in the root directory and add your backend API URL:
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:8080/
