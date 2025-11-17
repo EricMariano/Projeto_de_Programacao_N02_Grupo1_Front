@@ -28,3 +28,23 @@ export interface UserRequestDTO {
   teacherRegistration?: string | null
 }
 
+export interface LoginRequestDTO {
+  email: string
+  password: string
+}
+
+export interface LoginResponseDTO {
+  token?: string
+  user?: User
+  message?: string
+}
+
+export interface ForgotPasswordRequestDTO {
+  email: string
+}
+
+export interface ForgotPasswordResponseDTO {
+  message?: string
+  success?: boolean
+}
+

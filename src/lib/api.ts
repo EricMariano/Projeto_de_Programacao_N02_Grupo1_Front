@@ -1,5 +1,5 @@
 import { API_BASE_URL, API_ENDPOINTS } from './api-config'
-import type { UserRequestDTO } from './types'
+import type { UserRequestDTO, LoginRequestDTO, LoginResponseDTO, ForgotPasswordRequestDTO, ForgotPasswordResponseDTO } from './types'
 
 export class ApiError extends Error {
   constructor(
@@ -75,5 +75,21 @@ export const createUser = async (userData: UserRequestDTO): Promise<void> => {
     endpoint: API_ENDPOINTS.USER.CREATE,
     method: 'POST',
     body: JSON.stringify(userData),
+  })
+}
+
+export const login = async (loginData: LoginRequestDTO): Promise<LoginResponseDTO> => {
+  return fetcher<LoginResponseDTO>({
+    endpoint: API_ENDPOINTS.USER.LOGIN,
+    method: 'POST',
+    body: JSON.stringify(loginData),
+  })
+}
+
+export const forgotPassword = async (forgotPasswordData: ForgotPasswordRequestDTO): Promise<ForgotPasswordResponseDTO> => {
+  return fetcher<ForgotPasswordResponseDTO>({
+    endpoint: API_ENDPOINTS.USER.FORGOT_PASSWORD,
+    method: 'POST',
+    body: JSON.stringify(forgotPasswordData),
   })
 }

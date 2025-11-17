@@ -93,3 +93,27 @@ export const registerFormSchema = z.object({
 
 export type RegisterFormData = z.infer<typeof registerFormSchema>
 
+export const loginFormSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email é obrigatório")
+    .email("Email inválido")
+    .toLowerCase(),
+  
+  senha: z
+    .string()
+    .min(1, "Senha é obrigatória"),
+})
+
+export type LoginFormData = z.infer<typeof loginFormSchema>
+
+export const forgotPasswordFormSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email é obrigatório")
+    .email("Email inválido")
+    .toLowerCase(),
+})
+
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordFormSchema>
+
