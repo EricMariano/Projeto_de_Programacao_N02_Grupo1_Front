@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { cn } from "@/lib/utils"
@@ -8,74 +9,49 @@ import { FieldGroup, Field, FieldLabel, FieldContent, FieldError } from "@/compo
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { login, ApiError } from "@/lib/api"
-import { loginFormSchema, type LoginFormData } from "@/lib/validation-schemas"
-import { AlertCircle, CheckCircle2 } from "lucide-react"
+import { login } from "./actions"
+import { loginFormSchema, type LoginFormData } from "./v-form-schema"
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react"
 import Link from "next/link"
+import {
+  defaultFormValues,
+  transformFormDataToLoginDTO,
+  extractApiErrorMessage,
+  checkAndHandleAdminRedirect,
+} from "./helpers"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
+  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginFormSchema),
-    defaultValues: {
-      email: "",
-      senha: "",
-    },
+    defaultValues: defaultFormValues,
     mode: "onBlur",
   })
 
   const onSubmit = async (data: LoginFormData) => {
     setError(null)
     setSuccess(false)
-
-    const loginData = {
-      email: data.email,
-      password: data.senha,
-    }
+    setIsRedirecting(false)
 
     try {
+      const loginData = transformFormDataToLoginDTO(data)
       const response = await login(loginData)
       setSuccess(true)
-      
-      if (response.token) {
-        // Exemplo: localStorage.setItem('token', response.token)
-        console.log('Token recebido:', response.token)
-      }
-      
-      setTimeout(() => {
-        reset()
-        setSuccess(false)
-      }, 3000)
+
+      await checkAndHandleAdminRedirect(response, setIsRedirecting, router.push)
     } catch (err) {
-      if (err instanceof ApiError) {
-        let errorMsg = err.message || "Erro ao fazer login"
-        
-        if (err.details && typeof err.details === 'object') {
-          const details = err.details as Record<string, unknown>
-          if (details.errors && typeof details.errors === 'object') {
-            const errorFields = Object.entries(details.errors as Record<string, unknown>)
-              .map(([field, msg]) => `${field}: ${msg}`)
-              .join(', ')
-            errorMsg = `${err.message}. ${errorFields}`
-          } else if (details.mensagem && typeof details.mensagem === 'string') {
-            errorMsg = details.mensagem
-          }
-        }
-        
-        setError(errorMsg)
-      } else {
-        setError("Erro desconhecido ao fazer login. Tente novamente.")
-      }
+      setError(extractApiErrorMessage(err))
     }
   }
 
@@ -142,7 +118,14 @@ export function LoginForm({
           <Alert className="bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900">
             <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
             <AlertDescription className="text-green-900 dark:text-green-100">
-              Login realizado com sucesso!
+              {isRedirecting ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Redirecionando para o painel administrativo...</span>
+                </div>
+              ) : (
+                "Login realizado com sucesso!"
+              )}
             </AlertDescription>
           </Alert>
         )}
