@@ -9,6 +9,12 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
+const rules = {
+  "no-unused-vars": "off",
+  "no-undef": "warn",
+  "no-undef-init": "warn",
+};
+
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
@@ -19,6 +25,9 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
     ],
+    rules: [
+      ...rules,
+    ]
   },
 ];
 

@@ -1,5 +1,4 @@
-import { API_BASE_URL, API_ENDPOINTS } from './api-config'
-import type { UserRequestDTO, LoginRequestDTO, LoginResponseDTO, ForgotPasswordRequestDTO, ForgotPasswordResponseDTO } from './types'
+import { API_BASE_URL } from './fetcher-config'
 
 export class ApiError extends Error {
   constructor(
@@ -16,16 +15,26 @@ interface FetchOptions extends RequestInit {
   endpoint: string
 }
 
-async function fetcher<T>(options: FetchOptions): Promise<T> {
+export async function fetcher<T>(options: FetchOptions): Promise<T> {
   const { endpoint, ...requestInit } = options
   const url = `${API_BASE_URL}${endpoint}`
 
+  const headers: Record<string, string> = {
+    ...(requestInit.headers as Record<string, string>),
+  }
+
+  if (requestInit.body) {
+    headers['Content-Type'] = 'application/json'
+  }
+
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
   const config: RequestInit = {
     ...requestInit,
-    headers: {
-      'Content-Type': 'application/json',
-      ...requestInit.headers,
-    },
+    headers,
   }
 
   try {
@@ -68,28 +77,4 @@ async function fetcher<T>(options: FetchOptions): Promise<T> {
       0
     )
   }
-}
-
-export const createUser = async (userData: UserRequestDTO): Promise<void> => {
-  return fetcher<void>({
-    endpoint: API_ENDPOINTS.USER.CREATE,
-    method: 'POST',
-    body: JSON.stringify(userData),
-  })
-}
-
-export const login = async (loginData: LoginRequestDTO): Promise<LoginResponseDTO> => {
-  return fetcher<LoginResponseDTO>({
-    endpoint: API_ENDPOINTS.USER.LOGIN,
-    method: 'POST',
-    body: JSON.stringify(loginData),
-  })
-}
-
-export const forgotPassword = async (forgotPasswordData: ForgotPasswordRequestDTO): Promise<ForgotPasswordResponseDTO> => {
-  return fetcher<ForgotPasswordResponseDTO>({
-    endpoint: API_ENDPOINTS.USER.FORGOT_PASSWORD,
-    method: 'POST',
-    body: JSON.stringify(forgotPasswordData),
-  })
 }
