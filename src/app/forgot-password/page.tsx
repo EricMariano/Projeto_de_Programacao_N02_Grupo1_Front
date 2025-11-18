@@ -1,7 +1,7 @@
 "use client"
 
 import { GalleryVerticalEnd } from "lucide-react"
-import { ForgotPasswordForm } from "./c-forgot-password-form"
+import { ForgotPasswordForm } from "./c-form-field"
 
 export default function ForgotPasswordPage() {
   return (
