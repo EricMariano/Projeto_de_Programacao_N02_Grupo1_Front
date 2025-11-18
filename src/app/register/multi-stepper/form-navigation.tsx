@@ -1,0 +1,65 @@
+import { Button } from "@/components/ui/button"
+import { ChevronLeft, ChevronRight, Check } from "lucide-react"
+
+interface FormNavigationProps {
+  currentStep: number
+  totalSteps: number
+  onPrevious: () => void
+  isSubmitting?: boolean
+}
+
+export function FormNavigation({ 
+  currentStep, 
+  totalSteps, 
+  onPrevious, 
+  isSubmitting = false
+}: FormNavigationProps) {
+  const isLastStep = currentStep === totalSteps
+  const isFirstStep = currentStep === 1
+  
+  return (
+    <div className="flex gap-3 pt-4">
+      {!isFirstStep && (
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onPrevious}
+          className="h-11 min-w-[120px]"
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Voltar
+        </Button>
+      )}
+      
+      {!isLastStep ? (
+        <Button 
+          type="submit"
+          className="h-11 flex-1 font-semibold"
+          disabled={isSubmitting}
+        >
+          Próximo
+          <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
+      ) : (
+        <Button 
+          type="submit"
+          className="h-11 flex-1 font-semibold"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <>
+              <span className="animate-spin mr-2">⏳</span>
+              Processando...
+            </>
+          ) : (
+            <>
+              <Check className="h-4 w-4 mr-2" />
+              Finalizar Cadastro
+            </>
+          )}
+        </Button>
+      )}
+    </div>
+  )
+}
+

@@ -1,7 +1,7 @@
 "use client"
 
 import { GalleryVerticalEnd } from "lucide-react"
-import { RegisterForm } from "./c-register-form-field"
+import { RegisterForm } from "./c-form-field"
 
 export default function RegisterPage() {
   return (
